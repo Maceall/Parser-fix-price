@@ -17,7 +17,6 @@ def auth():
 	'password': password
 	}
 	session.post(url, data=params)
-
 	return True
 
 login = ''
@@ -63,12 +62,13 @@ def profile():
 
 	profile_data_card = soup.find('div', class_='personal-card__number').text
 	user_info.append(profile_data_card) # номер скидочной карты
-
-	profile_data_balance = soup.find('div', class_='client-points__active').text
-	user_info.append(profile_data_balance) # баланс скидочной карты
 	
-	return user_info
-
+	profile_data_balance = soup.find('div', class_='client-points__active') # баланс скидочной карты
+	if  profile_data_balance == None:
+		user_info.append('Отсутствует') 
+	else:
+		user_info.append(profile_data_balance.text)
+	
 price = [] # храним все цены
 desc = [] # храним все описания товаров
 product = [] # храним все товары в избранном
@@ -98,15 +98,34 @@ action_time = [] # даты акций
 action_title = [] # заголовок акций
 action_desc = [] # описание акций
 def actions():
+	"""
+	Поиск информации о действущих акциях
+	"""
 	for a in range(1,6):
 		response = session.get('https://fix-price.ru/actions/?PAGEN_2='+str(a))
 		soup = BS(response.content, 'lxml')
 		act_data = soup.find_all('a', {'class': 'action-block__item'})
 		for a in act_data:
-			act_data_a = a.find('span', class_= 'action-card__footer-date') # даты завершающиеся акции
-			if act_data_a != None:
-				action_time.append(act_data_a.text)
-		for a in act_data:
+			act_data_time = a.find('span', class_= 'action-card__footer-date') # даты завершающиеся акции
+			act_data_title = a.find('div', class_= 'action-card__desc-title') # заголовок акций
+			act_data_end = a.find('div', class_= 'action-card__date') # проверка на окончание даты
+			act_data_desc = a.find('h4', class_='action-card__info')
+			if act_data_end != None: #блок с перебором заголовков акций
+				c = str(act_data_end.text.strip())
+				if c != 'акция завершена':
+					action_title.append(act_data_title.text.strip())
+					if act_data_desc.find('div') == None: #тестовый блок описания акции
+						action_desc.append(a.find('h4', class_='action-card__info').text.strip()) 
+					else:
+						action_desc.append(act_data_desc.find('div').text.strip())
+			else:
+				action_title.append(act_data_title.text.strip())
+				if act_data_desc.find('div') == None: #тестовый блок описания акции
+					action_desc.append(a.find('h4', class_='action-card__info').text.strip())
+				else:
+					action_desc.append(act_data_desc.find('div').text.strip())
+			if act_data_time != None: #блок с перебором времени действия акций
+				action_time.append(act_data_time.text)
 			act_data_b = a.find('div', class_= 'action-card__date') # даты длинные акции
 			if act_data_b != None:
 				b = str(act_data_b.text.strip().replace(' ',''))
@@ -116,7 +135,7 @@ def actions():
 
 def writer():
 	"""
-	Запись информации в файл
+	Запись полученной информации в файл
 	"""
 	a = [				#Список ключей для вывода личных данных
 		'Фамилия: ', 
@@ -133,24 +152,29 @@ def writer():
 		'Номер скидочной карты: ',
 		'Баланс скидочной карты: '
 		]
-	with open(f'{login}.txt', 'w') as write_file:
+	with open(f'{login}.txt', 'w') as write_file: # запись персональных данных
 		b = dict(zip(a,user_info))
 		for key,value in b.items():
 			write_file.write('{}{}\n'.format(key,value))
 		
 		write_file.write('\n\n ----- ТОВАРЫ В ИЗБРАННОМ ----\n\n')
 		
-		for a in range(len(product)):
+		for a in range(len(product)): # запись данных об избранных товарах
 			write_file.write(str(a+1)+')'+' '+product[a]+'   ')
 			write_file.write(desc[a]+'   ')
 			write_file.write('Цена: '+price[a]+'руб\n\n')
 
+		write_file.write('\n\n ----- ДЕЙСТВУЮЩИЕ АКЦИИ ----\n\n')
+
+		for a in range(len(action_time)): # запись действующих акций
+			write_file.write(str(a+1)+')'+' '+action_title[a]+'   ')
+			write_file.write(action_desc[a]+'   ')
+			write_file.write(action_time[a]+'\n\n')
+
 	print('Данные записаны в файл - 'f'{login}.txt')
 
-
 auth()
-# profile()
-# faviorites()
+profile()
+faviorites()
 actions()
-# writer()
-print(action_time)
+writer()
