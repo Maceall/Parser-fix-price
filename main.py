@@ -157,14 +157,14 @@ def writer():
 		for key,value in b.items():
 			write_file.write('{}{}\n'.format(key,value))
 		
-		write_file.write('\n\n ----- ТОВАРЫ В ИЗБРАННОМ ----\n\n')
+		write_file.write('\n\n ----- ТОВАРЫ В ИЗБРАННОМ -----\n\n')
 		
 		for a in range(len(product)): # запись данных об избранных товарах
 			write_file.write(str(a+1)+')'+' '+product[a]+'   ')
 			write_file.write(desc[a]+'   ')
 			write_file.write('Цена: '+price[a]+'руб\n\n')
 
-		write_file.write('\n\n ----- ДЕЙСТВУЮЩИЕ АКЦИИ ----\n\n')
+		write_file.write('\n\n ----- ДЕЙСТВУЮЩИЕ АКЦИИ -----\n\n')
 
 		for a in range(len(action_time)): # запись действующих акций
 			write_file.write(str(a+1)+')'+' '+action_title[a]+'   ')
