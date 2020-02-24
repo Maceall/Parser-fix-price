@@ -94,38 +94,25 @@ def faviorites():
 		b = a.find('a', class_="product-card__title").text.strip()
 		product.append(b)
 
-actions_result_a = []
-actions_result_b = []
+action_time = [] # даты акций
+action_title = [] # заголовок акций
+action_desc = [] # описание акций
 def actions():
-	# a_act = True
-	# b_act = True
-	# while a_act == True or b_act == True:
-	# 	for a in range(1,6):
-	# 		response = session.get('https://fix-price.ru/actions/?PAGEN_2='+str(a))
-	# 		soup = BS(response.content, 'lxml')
-	# 		act_data_a = soup.find_all('span', class_='action-card__footer-date')
-	# 		act_data_b = soup.find_all('i', class_='icon icon-calendar')
-	# 		for a in act_data_a:
-	# 			act_data_a = a.text
-	# 			actions_result_a.append(act_data_a)
-	# 			if act_data_a == True:
-	# 				a_act = True
-	# 			else:
-	# 				a_act = False
-	# 		for a in act_data_b:
-	# 			act_data_b = a.text.strip()
-	# 			actions_result_b.append(act_data_b)
-	# 		if act_data_b == True:
-	# 			b_act = True
-	# 		else:
-	# 			b_act = False
-	# print(actions_result_a, actions_result_b) # ищем завещающиеся акции
+	for a in range(1,6):
+		response = session.get('https://fix-price.ru/actions/?PAGEN_2='+str(a))
+		soup = BS(response.content, 'lxml')
+		act_data = soup.find_all('a', {'class': 'action-block__item'})
+		for a in act_data:
+			act_data_a = a.find('span', class_= 'action-card__footer-date') # даты завершающиеся акции
+			if act_data_a != None:
+				action_time.append(act_data_a.text)
+		for a in act_data:
+			act_data_b = a.find('div', class_= 'action-card__date') # даты длинные акции
+			if act_data_b != None:
+				b = str(act_data_b.text.strip().replace(' ',''))
+				if b != 'акциязавершена':
+					action_time.append(b)	
 	
-	response = session.get('https://fix-price.ru/actions/?PAGEN_2=2')
-	soup = BS(response.content, 'lxml')
-	act_data_a = soup.find_all('a', {'class': 'action-block__item'})
-	for value in act_data_a:
-		print(value.select('div[class="action-card__date"]'))
 
 def writer():
 	"""
@@ -166,3 +153,4 @@ auth()
 # faviorites()
 actions()
 # writer()
+print(action_time)
