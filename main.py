@@ -41,10 +41,10 @@ def profile():
 	"""
 	response = session.get('https://fix-price.ru/personal/#profile_data')
 	soup = BS(response.content, 'lxml')
-	profile_data = soup.find_all('div', class_='personal-data__item')[0] #ищем общие персональные данные
+	profile_data = soup.find_all('div', class_='personal-data__item')[0]  # ищем общие персональные данные
 
 
-	profile_data_main = profile_data.find_all('input', {'type':'text'}) #поиск имени,фамилии,отчества,почты, даты рождения
+	profile_data_main = profile_data.find_all('input', {'type':'text'})  # поиск имени,фамилии,отчества,почты, даты рождения
 	for info in profile_data_main: 
 		user_info.append(info.attrs['value'])  # Добавление в список данных об имени, фамилии...
 
